@@ -68,9 +68,6 @@ module DICOM
       when :mini_magick
         require 'mini_magick'
         DcmMiniMagick
-      when :rmagick
-        require 'rmagick'
-        DcmRMagick
       else
         raise "Uknown image processor #{DICOM.image_processor}"
       end

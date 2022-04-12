@@ -24,7 +24,6 @@ module DICOM
   # all ImageItem and Parent methods are also available to instances of DObject.
   #
   class DObject < ImageItem
-    include Logging
 
     # An attribute set as nil. This attribute is included to provide consistency with the other element types which usually have a parent defined.
     attr_reader :parent
@@ -67,8 +66,8 @@ module DICOM
           retrials = 0
           raise "Unable to retrieve the file. File does not exist?"
         else
-          logger.warn("Exception in ruby-dicom when loading a dicom file from: #{file}")
-          logger.debug("Retrying... #{retrials}")
+          DICOM.logger.warn("Exception in ruby-dicom when loading a dicom file from: #{file}")
+          DICOM.logger.debug("Retrying... #{retrials}")
           retrials += 1
           retry
         end
@@ -105,9 +104,9 @@ module DICOM
       dcm = self.new
       dcm.send(:read, string, signature, :overwrite => options[:overwrite], :syntax => options[:syntax])
       if dcm.read?
-        logger.debug("DICOM string successfully parsed.")
+        DICOM.logger.debug("DICOM string successfully parsed.")
       else
-        logger.warn("Failed to parse this string as DICOM.")
+        DICOM.logger.warn("Failed to parse this string as DICOM.")
       end
       dcm.source = :str
       return dcm
@@ -127,16 +126,16 @@ module DICOM
       # Read the file content:
       bin = nil
       unless File.exist?(file)
-        logger.error("Invalid (non-existing) file: #{file}")
+        DICOM.logger.error("Invalid (non-existing) file: #{file}")
       else
         unless File.readable?(file)
-          logger.error("File exists but I don't have permission to read it: #{file}")
+          DICOM.logger.error("File exists but I don't have permission to read it: #{file}")
         else
           if File.directory?(file)
-            logger.error("Expected a file, got a directory: #{file}")
+            DICOM.logger.error("Expected a file, got a directory: #{file}")
           else
             if File.size(file) < 8
-              logger.error("This file is too small to contain any DICOM information: #{file}.")
+              DICOM.logger.error("This file is too small to contain any DICOM information: #{file}.")
             else
               bin = File.open(file, "rb") { |f| f.read }
             end
@@ -149,7 +148,7 @@ module DICOM
         # If reading failed, and no transfer syntax was detected, we will make another attempt at reading the file while forcing explicit (little endian) decoding.
         # This will help for some rare cases where the DICOM file is saved (erroneously, Im sure) with explicit encoding without specifying the transfer syntax tag.
         if !dcm.read? and !dcm.exists?("0002,0010")
-          logger.info("Attempting a second decode pass (assuming Explicit Little Endian transfer syntax).")
+          DICOM.logger.info("Attempting a second decode pass (assuming Explicit Little Endian transfer syntax).")
           options[:syntax] = EXPLICIT_LITTLE_ENDIAN
           dcm = self.parse(bin, options)
         end
@@ -157,9 +156,9 @@ module DICOM
         dcm = self.new
       end
       if dcm.read?
-        logger.info("DICOM file successfully read: #{file}")
+        DICOM.logger.info("DICOM file successfully read: #{file}")
       else
-        logger.warn("Reading DICOM file failed: #{file}")
+        DICOM.logger.warn("Reading DICOM file failed: #{file}")
       end
       dcm.source = file
       return dcm

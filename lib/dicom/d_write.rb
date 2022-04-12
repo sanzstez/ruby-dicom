@@ -1,9 +1,9 @@
 module DICOM
 
   class Parent
+    using DICOM::Extensions::StringExtensions
 
     private
-
 
     # Adds a binary string to (the end of) either the instance file or string.
     #
@@ -97,7 +97,7 @@ module DICOM
           @file = File.new(file, "wb")
         else
           # Existing file is not writable:
-          logger.error("The program does not have permission or resources to create this file: #{file}")
+          DICOM.logger.error("The program does not have permission or resources to create this file: #{file}")
         end
       else
         # File does not exist.
@@ -340,7 +340,7 @@ module DICOM
     def switch_syntax_on_write
       # Process the transfer syntax string to establish encoding settings:
       ts = LIBRARY.uid(@transfer_syntax)
-      logger.warn("Invalid/unknown transfer syntax: #{@transfer_syntax} Will complete encoding the file, but an investigation of the result is recommended.") unless ts && ts.transfer_syntax?
+      DICOM.logger.warn("Invalid/unknown transfer syntax: #{@transfer_syntax} Will complete encoding the file, but an investigation of the result is recommended.") unless ts && ts.transfer_syntax?
       @rest_explicit = ts ? ts.explicit? : true
       @rest_endian = ts ? ts.big_endian? : false
       # Make sure we only run this method once:
@@ -350,7 +350,5 @@ module DICOM
       @str_endian = @rest_endian
       @stream.endian = @rest_endian
     end
-
   end
-
 end

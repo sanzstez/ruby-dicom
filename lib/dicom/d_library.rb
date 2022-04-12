@@ -9,6 +9,7 @@ module DICOM
   #   element = DICOM::LIBRARY.element('0010,0010')
   #
   class DLibrary
+    using DICOM::Extensions::StringExtensions
 
     # A hash with element tag strings as keys and DicitonaryElement instances as values.
     attr_reader :elements

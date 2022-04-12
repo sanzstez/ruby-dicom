@@ -1,3 +1,13 @@
+# 1.0.0
+
+* Improve: Decoding strings
+* Improve: move core extensions over refine
+* Improve: replace custom logger with default
+* Replace:
+  * replace rmagick support
+  * server, client, anonymize, audit modules
+  * samples, scripts, specs
+
 # 0.9.8
 
 ## 24th March, 2018

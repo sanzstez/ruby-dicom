@@ -4,6 +4,7 @@ module DICOM
   # the two elemental parent classes: Item & Sequence
   #
   module ElementalParent
+    using DICOM::Extensions::HashExtensions
 
     # Adds a child item to a Sequence (or Item in some cases where pixel data is encapsulated).
     #

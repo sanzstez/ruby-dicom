@@ -4,6 +4,7 @@ module DICOM
   # found in the DICOM Data Dictionary.
   #
   class DictionaryElement
+    using DICOM::Extensions::StringExtensions
 
     # The element's name, e.g. 'SOP Instance UID'.
     attr_reader :name

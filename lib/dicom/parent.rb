@@ -10,8 +10,7 @@ module DICOM
   # * Sequence
   #
   class Parent
-
-    include Logging
+    using DICOM::Extensions::StringExtensions
 
     # Retrieves the child element matching the specified element tag or item index.
     #
@@ -617,14 +616,6 @@ module DICOM
       to_hash.to_json
     end
 
-    # Returns a yaml string containing a human-readable representation of the parent.
-    #
-    # @return [String] a human-readable representation of this parent
-    #
-    def to_yaml
-      to_hash.to_yaml
-    end
-
     # Gives the value of a specific Element child of this parent.
     #
     # * Only Element instances have values. Parent elements like Sequence and Item have no value themselves.
@@ -662,11 +653,11 @@ module DICOM
     #
     def check_key(tag_or_index, method)
       if tag_or_index.is_a?(String)
-        logger.warn("Parent##{method} called with an invalid tag argument: #{tag_or_index}") unless tag_or_index.tag?
+        DICOM.logger.warn("Parent##{method} called with an invalid tag argument: #{tag_or_index}") unless tag_or_index.tag?
       elsif tag_or_index.is_a?(Integer)
-        logger.warn("Parent##{method} called with a negative Integer argument: #{tag_or_index}") if tag_or_index < 0
+        DICOM.logger.warn("Parent##{method} called with a negative Integer argument: #{tag_or_index}") if tag_or_index < 0
       else
-        logger.warn("Parent##{method} called with an unexpected argument. Expected String or Integer, got: #{tag_or_index.class}")
+        DICOM.logger.warn("Parent##{method} called with an unexpected argument. Expected String or Integer, got: #{tag_or_index.class}")
       end
     end
 

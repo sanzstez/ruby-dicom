@@ -20,7 +20,7 @@ module DICOM
   #++
 
   # The default image processor.
-  self.image_processor = :rmagick
+  self.image_processor = :mini_magick
   # The default key representation.
   self.key_representation = :name
   # The default source application entity title.

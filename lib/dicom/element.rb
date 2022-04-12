@@ -3,6 +3,7 @@ module DICOM
   # The Element class handles information related to ordinary (non-parent) elementals (data elements).
   #
   class Element
+    using DICOM::Extensions::StringExtensions
 
     # Include the Elemental mix-in module:
     include Elemental
@@ -182,14 +183,6 @@ module DICOM
       to_hash.to_json
     end
 
-    # Gives a yaml string containing a human-readable representation of the Element.
-    #
-    # @return [String] a string containing a key & value pair (e.g. "---\nModality: MR\n")
-    #
-    def to_yaml
-      to_hash.to_yaml
-    end
-
     # Gives the (decoded) value of the data element.
     #
     # @note Returned string values are automatically converted from their originally
@@ -208,11 +201,18 @@ module DICOM
         # Unless this is actually the Character Set data element,
         # get the character set (note that it may not be available):
         character_set = (@tag != '0008,0005' && top_parent.is_a?(DObject)) ? top_parent.value('0008,0005') : nil
+
+        if character_set
+          return @value.encode('UTF-8', ENCODING_NAME[character_set])
+        end
+
+        recognize_encoding_with_decode(@value)
+
         # Convert to UTF-8 from [original encoding]:
         # In most cases the original encoding is IS0-8859-1 (ISO_IR 100), but if
         # it is not specified in the DICOM object, or if the specified string
-        # is not recognized, ASCII-8BIT is assumed.
-        @value.encode('UTF-8', ENCODING_NAME[character_set])
+        # is not recognized, ISO-8859-1 is assumed.
+        #@value.encode('UTF-8', ENCODING_NAME[character_set])
         # If unpleasant encoding exceptions occur, the below version may be considered:
         #@value.encode('UTF-8', ENCODING_NAME[character_set], :invalid => :replace, :undef => :replace)
       else
@@ -256,6 +256,21 @@ module DICOM
 
     private
 
+    def recognize_encoding_with_decode value
+      value.force_encoding('UTF-8')
+
+      return value if value.valid_encoding?
+
+      ['ISO-8859-1', 'ASCII-8BIT'].each do |encoding|
+        begin
+          break if value.encode!('UTF-8', encoding)
+        rescue => e
+          next
+        end
+      end
+
+      value
+    end
 
     # Encodes a formatted value to a binary string.
     #

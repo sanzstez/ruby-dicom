@@ -3,6 +3,7 @@ module DICOM
   # The Sequence class handles information related to Sequence elements.
   #
   class Sequence < Parent
+    using DICOM::Extensions::StringExtensions
 
     include Elemental
     include ElementalParent

@@ -1,6 +1,7 @@
 module DICOM
 
   class Parent
+    using DICOM::Extensions::StringExtensions
 
     # Loads data from an encoded DICOM string and creates
     # items and elements which are linked to this instance.
@@ -28,7 +29,7 @@ module DICOM
       if @current_parent[tag]
         gp = @current_parent.parent ? "#{@current_parent.parent.representation} => " : ''
         p = @current_parent.representation
-        logger.warn("Duplicate #{elemental} (#{tag}) detected at level: #{gp}#{p}")
+        DICOM.logger.warn("Duplicate #{elemental} (#{tag}) detected at level: #{gp}#{p}")
       end
     end
 
@@ -50,7 +51,7 @@ module DICOM
         @header_length += 132
         if identifier != "DICM" then
           # Header signature is not valid (we will still try to parse it is a DICOM string though):
-          logger.warn("This string does not contain the expected DICOM header. Will try to parse the string anyway (assuming a missing header).")
+          DICOM.logger.warn("This string does not contain the expected DICOM header. Will try to parse the string anyway (assuming a missing header).")
           # As the string is not conforming to the DICOM standard, it is possible that it does not contain a
           # transfer syntax element, and as such, we attempt to choose the most probable encoding values here:
           @explicit = false
@@ -247,11 +248,11 @@ module DICOM
           @read_success = false
           data_element = false
           # Output the raised message as a warning:
-          logger.warn(msg.to_s)
+          DICOM.logger.warn(msg.to_s)
           # Ouput the backtrace as debug information:
-          logger.debug(msg.backtrace)
+          DICOM.logger.debug(msg.backtrace)
           # Explain the failure as an error:
-          logger.error("Parsing a Data Element has failed. This is likely caused by an invalid DICOM encoding.")
+          DICOM.logger.error("Parsing a Data Element has failed. This is likely caused by an invalid DICOM encoding.")
         end
       end
     end
@@ -366,7 +367,7 @@ module DICOM
       @transfer_syntax = (self["0002,0010"] ? self["0002,0010"].value : IMPLICIT_LITTLE_ENDIAN) unless @transfer_syntax
       # Query the library with our particular transfer syntax string:
       ts = LIBRARY.uid(@transfer_syntax)
-      logger.warn("Invalid/unknown transfer syntax: #{@transfer_syntax} Will try parsing the string, but errors may occur.") unless ts && ts.transfer_syntax?
+      DICOM.logger.warn("Invalid/unknown transfer syntax: #{@transfer_syntax} Will try parsing the string, but errors may occur.") unless ts && ts.transfer_syntax?
       @rest_explicit = ts ? ts.explicit? : true
       @rest_endian = ts ? ts.big_endian? : false
       # Make sure we only run this method once:
